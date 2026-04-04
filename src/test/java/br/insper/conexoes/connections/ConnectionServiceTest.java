@@ -90,8 +90,8 @@ class ConnectionServiceTest {
         // ação
         List<Connection> response = connectionService.listByUser("user-1");
 
-        assertEquals(2, response.size());
         assertNotNull(response);
+        assertEquals(2, response.size());
         assertEquals("user-1", response.getFirst().getFromUserId());
 
     }

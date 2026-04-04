@@ -17,6 +17,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -28,7 +29,8 @@ class ConnectionControllerIntegrationTest {
 
     @Container
     @ServiceConnection
-    static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:7"));
+    static MongoDBContainer mongo
+            = new MongoDBContainer(DockerImageName.parse("mongo:7"));
 
     @Container
     @ServiceConnection
@@ -64,11 +66,36 @@ class ConnectionControllerIntegrationTest {
         mockMvc.perform(post("/connections")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.fromUserId").value("user1"))
                 .andExpect(jsonPath("$.toUserId").value("user2"));
 
         assertThat(repository.findAll()).hasSize(1);
+    }
+
+    @Test
+    void listConnection_shouldReturnEmptyList() throws Exception {
+        mockMvc.perform(get("/connections/1"))
+                .andExpect(status().isOk());
+
+        assertThat(repository.findAll()).hasSize(0);
+    }
+
+    @Test
+    void listConnection_shouldReturnOneUser() throws Exception {
+
+        Connection connection = new Connection("1", "2");
+        Connection connection2 = new Connection("1", "3");
+        repository.save(connection);
+        repository.save(connection2);
+
+        mockMvc.perform(get("/connections/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].fromUserId").value("1"))
+                .andExpect(jsonPath("$[1].fromUserId").value("1"));
+
+        assertThat(repository.findAll()).hasSize(2);
     }
 
     //listConnections_shouldReturnConnectionsForUser

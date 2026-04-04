@@ -1,11 +1,13 @@
 package br.insper.conexoes.connections;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/connections")
+@CrossOrigin(origins = "*")
 public class ConnectionController {
 
     private final ConnectionService service;
@@ -15,6 +17,7 @@ public class ConnectionController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Connection createConnection(@RequestBody CreateConnectionRequest request) {
         return service.create(
                 request.fromUserId(),
