@@ -30,7 +30,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthConverter()))
+                        .jwt(Customizer.withDefaults())
                 );
 
         return http.build();

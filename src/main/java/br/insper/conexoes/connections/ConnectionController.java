@@ -1,7 +1,6 @@
 package br.insper.conexoes.connections;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +24,6 @@ public class ConnectionController {
     public Connection createConnection(
             @RequestHeader(name = "Authorization") String token,
             @RequestBody CreateConnectionRequest request) {
-        //List<String> roles = jwt.getClaimAsStringList("https://social-insper.com/roles");
-
-        //if (roles == null || !roles.contains("ADMIN")) {
-        //    throw new ResponseStatusException(
-        //            HttpStatus.FORBIDDEN,
-        //            "Apenas ADMIN pode executar esta ação"
-        //    );
-        //}
         System.out.println(token);
         return service.create(
                 request.fromUserId(),
@@ -44,16 +35,22 @@ public class ConnectionController {
     public List<Connection> listConnections(
             @RequestHeader(name = "Authorization") String token,
             @PathVariable String userId) {
-
         System.out.println(token);
         return service.listByUser(userId);
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteConnection(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody DeleteConnectionRequest request) {
+        List<String> roles = jwt.getClaimAsStringList("https://social-insper.com/roles");
 
+        if (roles == null || !roles.contains("ADMIN")) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Apenas ADMIN pode executar esta ação"
+            );
+        }
         service.delete(
                 request.fromUserId(),
                 request.toUserId()
