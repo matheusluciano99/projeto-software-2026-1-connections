@@ -5,9 +5,9 @@ on:
     branches: ["main"]
 
 env:
-  DOCKER_IMAGE: ezambomsantana/connections-ci
+  DOCKER_IMAGE: matheusluciano99/connections-ci
   CONTAINER_NAME: conexoes
-  DOCKER_USER: ezambomsantana
+  DOCKER_USER: matheusluciano99
 
 jobs:
   build:
